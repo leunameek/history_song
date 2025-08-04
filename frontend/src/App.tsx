@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import SpotifyAuth from './components/SpotifyAuth'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -13,17 +14,24 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Welcome to Vite + React
+            HistorySong
           </h1>
           <p className="text-gray-600">
-            Get started by editing <code className="text-sm bg-gray-100 p-1 rounded">src/App.tsx</code>
+            Your Spotify music history and analytics
           </p>
         </div>
 
+        {/* Spotify Authentication Component */}
+        <SpotifyAuth />
+
+        {/* Original demo content */}
         <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+            API Test Section
+          </h2>
           <div className="text-center space-y-4">
             <button
               onClick={() => setCount((count) => count + 1)}
@@ -49,7 +57,7 @@ function App() {
         </div>
 
         <div className="text-center text-gray-500 text-sm">
-          Built with Vite, React, and Tailwind CSS
+          Built with Vite, React, Go, and Spotify API
         </div>
       </div>
     </div>

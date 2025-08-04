@@ -9,31 +9,33 @@ import (
 
 	_ "github.com/joho/godotenv/autoload"
 
-	"historySong/internal/database"
+	"historySong/internal/auth"
 )
 
 type Server struct {
-	port int
-
-	db database.Service
+	port        int
+	spotifyAuth *auth.SpotifyAuth
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	NewServer := &Server{
-		port: port,
+	if port == 0 {
+		port = 8080 // Default port
+	}
 
-		db: database.New(),
+	server := &Server{
+		port:        port,
+		spotifyAuth: auth.NewSpotifyAuth(),
 	}
 
 	// Declare Server config
-	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
-		Handler:      NewServer.RegisterRoutes(),
+	httpServer := &http.Server{
+		Addr:         fmt.Sprintf(":%d", server.port),
+		Handler:      server.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	return server
+	return httpServer
 }
