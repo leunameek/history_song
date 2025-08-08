@@ -51,10 +51,11 @@ type UserSession struct {
 
 // Claims for JWT token
 type Claims struct {
-	UserID      string `json:"user_id"`
-	DisplayName string `json:"display_name"`
-	Email       string `json:"email"`
-	ImageURL    string `json:"image_url"`
+	UserID       string `json:"user_id"`
+	DisplayName  string `json:"display_name"`
+	Email        string `json:"email"`
+	ImageURL     string `json:"image_url"`
+	SpotifyToken string `json:"spotify_token"`
 	jwt.RegisteredClaims
 }
 
@@ -76,6 +77,7 @@ func NewSpotifyAuth() *SpotifyAuth {
 		Scopes: []string{
 			"user-read-private",
 			"user-read-email",
+			"user-top-read",
 			"user-read-playback-state",
 			"user-modify-playback-state",
 			"user-read-currently-playing",
@@ -175,10 +177,11 @@ func (sa *SpotifyAuth) GenerateJWT(session *UserSession) (string, error) {
 	secret := os.Getenv("JWT_SECRET")
 
 	claims := Claims{
-		UserID:      session.UserID,
-		DisplayName: session.DisplayName,
-		Email:       session.Email,
-		ImageURL:    session.ImageURL,
+		UserID:       session.UserID,
+		DisplayName:  session.DisplayName,
+		Email:        session.Email,
+		ImageURL:     session.ImageURL,
+		SpotifyToken: session.AccessToken,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(session.ExpiresAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

@@ -7,6 +7,8 @@ A modern web application for analyzing your Spotify music history and listening 
 - 🔐 **Spotify OAuth Authentication** - Secure login with your Spotify account
 - 🎯 **JWT Token Management** - Secure session handling
 - 🛡️ **Protected API Routes** - Secure endpoints for user data
+- 🎵 **Top Tracks Analysis** - View your most listened songs with detailed album information
+- 📊 **Multiple Time Ranges** - 4 weeks, 6 months, and 1 year listening history
 - 🎨 **Modern UI** - Clean, responsive interface with Tailwind CSS
 - ⚡ **Fast Development** - Hot reload with Vite and Air
 - 🧪 **Comprehensive Testing** - Unit tests for authentication system
@@ -95,6 +97,8 @@ Visit `http://localhost:5173` to see the application!
 ### Protected Endpoints (require JWT token)
 - `GET /api/profile` - Get user profile
 - `GET /api/me` - Get current user info
+- `GET /api/top-tracks` - Get all top tracks (4 weeks, 6 months, 1 year)
+- `GET /api/top-tracks/:timeRange` - Get top tracks for specific time range
 
 ## Authentication Flow
 
@@ -118,18 +122,23 @@ historySong/
 │   │   └── spotify_test.go     # Authentication tests
 │   ├── middleware/
 │   │   └── auth.go             # JWT authentication middleware
+│   ├── spotify/
+│   │   ├── api.go              # Spotify Web API client
+│   │   └── api_test.go         # API client tests
 │   └── server/
 │       ├── server.go           # Server configuration
 │       └── routes.go           # API route definitions
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   └── SpotifyAuth.tsx # Spotify auth component
+│   │   │   ├── SpotifyAuth.tsx # Spotify auth component
+│   │   │   └── TopTracks.tsx   # Top tracks display component
 │   │   └── App.tsx             # Main React component
 │   └── package.json
 ├── .env                        # Environment variables (create with setup-env.sh)
 ├── setup-env.sh               # Environment setup script
-└── SPOTIFY_SETUP.md           # Detailed Spotify setup guide
+├── SPOTIFY_SETUP.md           # Detailed Spotify setup guide
+└── TOP_TRACKS_FEATURE.md      # Top tracks feature documentation
 ```
 
 ## Development
