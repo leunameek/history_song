@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"historySong/internal/middleware"
@@ -45,6 +46,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 		// Album details endpoint
 		protected.GET("/album/:albumId", s.getAlbumDetailsHandler)
+
+		// Search endpoint
+		protected.GET("/search", s.searchHandler)
 
 		// Debug endpoint (remove in production)
 		protected.GET("/debug/token", s.debugTokenHandler)
@@ -287,6 +291,48 @@ func (s *Server) getAlbumDetailsHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, album)
+}
+
+// searchHandler performs a search across Spotify's catalog
+func (s *Server) searchHandler(c *gin.Context) {
+	query := c.Query("q")
+	types := c.Query("type")
+	limitStr := c.Query("limit")
+
+	if query == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'q' is required"})
+		return
+	}
+
+	if types == "" {
+		types = "track,album,artist,playlist" // Default to search all types
+	}
+
+	limit := 20 // Default limit
+	if limitStr != "" {
+		if parsedLimit, err := strconv.Atoi(limitStr); err == nil && parsedLimit > 0 {
+			limit = min(parsedLimit, 50) // Spotify API max is 50
+		}
+	}
+
+	spotifyToken := c.GetString("spotify_token")
+	if spotifyToken == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No Spotify token found"})
+		return
+	}
+
+	// Create Spotify API client
+	spotifyAPI := spotify.NewSpotifyAPI()
+
+	// Perform search
+	searchResults, err := spotifyAPI.Search(spotifyToken, query, types, limit)
+	if err != nil {
+		fmt.Printf("Error performing search: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to perform search"})
+		return
+	}
+
+	c.JSON(http.StatusOK, searchResults)
 }
 
 // debugTokenHandler returns debug information about the current token

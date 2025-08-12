@@ -122,7 +122,6 @@ const PosterCanvas = ({ album, config }: PosterCanvasProps) => {
   }, [album, config]);
 
   const drawPoster = (ctx: CanvasRenderingContext2D, albumImage: HTMLImageElement) => {
-    const isVertical = config.layout === 'vertical';
     const canvas = ctx.canvas;
     const width = canvas.width;
     const height = canvas.height;

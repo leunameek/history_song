@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import TopTracks from './TopTracks';
+import SearchBar from './SearchBar';
 
 interface User {
   id: string;
@@ -222,6 +223,9 @@ const Dashboard = () => {
           </div>
           <TopTracks />
         </div>
+
+        {/* Search Section */}
+        <SearchBar />
 
         {/* Coming Soon Section */}
         <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-md p-6 mt-8">

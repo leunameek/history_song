@@ -68,7 +68,6 @@ const PosterEditor = ({ album, onClose }: PosterEditorProps) => {
   const [isColorPickerActive, setIsColorPickerActive] = useState(false);
   const [selectedColorType, setSelectedColorType] = useState<'text' | 'accent' | 'background'>('text');
   const [extractedColors, setExtractedColors] = useState<string[]>([]);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
   // Extract colors from album cover
@@ -150,28 +149,6 @@ const PosterEditor = ({ album, onClose }: PosterEditorProps) => {
     
     const color = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
     handleColorPick(color);
-  };
-
-  const formatReleaseDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  const getAlbumTypeDisplay = (albumType: string): string => {
-    switch (albumType.toLowerCase()) {
-      case 'album':
-        return 'Album';
-      case 'single':
-        return 'Single';
-      case 'compilation':
-        return 'Compilation';
-      default:
-        return albumType.charAt(0).toUpperCase() + albumType.slice(1);
-    }
   };
 
   const downloadPoster = () => {

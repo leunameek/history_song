@@ -61,6 +61,75 @@ type Album struct {
 	} `json:"tracks,omitempty"`
 }
 
+// SearchResponse represents the response from Spotify's search endpoint
+type SearchResponse struct {
+	Tracks    *SearchTracksResponse    `json:"tracks,omitempty"`
+	Albums    *SearchAlbumsResponse    `json:"albums,omitempty"`
+	Artists   *SearchArtistsResponse   `json:"artists,omitempty"`
+	Playlists *SearchPlaylistsResponse `json:"playlists,omitempty"`
+}
+
+// SearchTracksResponse represents tracks in search results
+type SearchTracksResponse struct {
+	Items []Track `json:"items"`
+	Total int     `json:"total"`
+}
+
+// SearchAlbumsResponse represents albums in search results
+type SearchAlbumsResponse struct {
+	Items []Album `json:"items"`
+	Total int     `json:"total"`
+}
+
+// SearchArtistsResponse represents artists in search results
+type SearchArtistsResponse struct {
+	Items []Artist `json:"items"`
+	Total int      `json:"total"`
+}
+
+// SearchPlaylistsResponse represents playlists in search results
+type SearchPlaylistsResponse struct {
+	Items []Playlist `json:"items"`
+	Total int        `json:"total"`
+}
+
+// Artist represents a Spotify artist
+type Artist struct {
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	Popularity int      `json:"popularity"`
+	Genres     []string `json:"genres"`
+	Images     []struct {
+		URL    string `json:"url"`
+		Height int    `json:"height"`
+		Width  int    `json:"width"`
+	} `json:"images"`
+	ExternalURL struct {
+		Spotify string `json:"spotify"`
+	} `json:"external_urls"`
+}
+
+// Playlist represents a Spotify playlist
+type Playlist struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Images      []struct {
+		URL    string `json:"url"`
+		Height int    `json:"height"`
+		Width  int    `json:"width"`
+	} `json:"images"`
+	ExternalURL struct {
+		Spotify string `json:"spotify"`
+	} `json:"external_urls"`
+	Owner struct {
+		DisplayName string `json:"display_name"`
+	} `json:"owner"`
+	Tracks struct {
+		Total int `json:"total"`
+	} `json:"tracks"`
+}
+
 // GetUserTopTracks fetches user's top tracks for a given time range
 func (s *SpotifyAPI) GetUserTopTracks(accessToken, timeRange string, limit int) (*TopTracksResponse, error) {
 	url := fmt.Sprintf("%s/me/top/tracks?time_range=%s&limit=%d", s.baseURL, timeRange, limit)
@@ -155,4 +224,37 @@ func (s *SpotifyAPI) GetAlbumDetails(accessToken, albumID string) (*Album, error
 	}
 
 	return &album, nil
+}
+
+// Search performs a search across Spotify's catalog
+func (s *SpotifyAPI) Search(accessToken, query, types string, limit int) (*SearchResponse, error) {
+	url := fmt.Sprintf("%s/search?q=%s&type=%s&limit=%d&market=from_token",
+		s.baseURL, query, types, limit)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %v", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("spotify API error: %s - %s", resp.Status, string(body))
+	}
+
+	var searchResponse SearchResponse
+	if err := json.NewDecoder(resp.Body).Decode(&searchResponse); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %v", err)
+	}
+
+	return &searchResponse, nil
 }
